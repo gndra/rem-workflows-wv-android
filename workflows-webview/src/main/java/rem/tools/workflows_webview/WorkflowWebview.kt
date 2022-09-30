@@ -12,20 +12,8 @@ import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import com.google.protobuf.util.JsonFormat
 import okhttp3.*
-import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
-
-
-fun JSONArray.toArrayList(): ArrayList<String> {
-    val list = arrayListOf<String>()
-    for (i in 0 until this.length()) {
-        list.add(this.getString(i))
-    }
-
-    return list
-}
-
 
 
 /*
@@ -138,7 +126,11 @@ class WorkflowWebview(
                     Log.d("Res", resData)
                     val json = JSONObject(resData)
                     Handler(Looper.getMainLooper()).post {
-                        val permissions = json.getJSONObject("result").getJSONArray("steps").toArrayList()
+                        val steps = json.getJSONObject("result").getJSONObject("workflow").getJSONArray("steps")
+                        var permissions = arrayListOf<String>()
+                        for (i in 0 until steps.length()) {
+                            permissions.add(steps.getJSONObject(i).getString("step"))
+                        }
                         askPermissions(activity, permissions)
 //                        askPermissions(activity, arrayListOf("enroll_full", "video_sign"))
 //                        Log.d("Url", json.getJSONObject("result").getString("public_url"))
