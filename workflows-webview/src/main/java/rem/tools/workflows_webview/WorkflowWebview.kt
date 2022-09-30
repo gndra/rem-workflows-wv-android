@@ -31,9 +31,11 @@ import java.io.IOException
 class WorkflowWebview(
     wf_base_url: String?,
     private var wf_apikey: String,
-    private var wf_webview: WebView
+    private var wf_webview: WebView,
+    minimal: Boolean?,
 ) {
     private var wf_base_url: String = "https://api.rem.tools/workflows"
+    private var minimal: Boolean = false
     private val client = OkHttpClient()
 
     companion object {
@@ -63,6 +65,9 @@ class WorkflowWebview(
         if (!wf_base_url.isNullOrEmpty()) {
             this.wf_base_url = wf_base_url
         }
+        if (minimal == true) {
+            this.minimal = true
+        }
     }
 
     /*
@@ -70,6 +75,8 @@ class WorkflowWebview(
     *
     * @param applicationContext is the current aplication context
     * @param activity is the activity where the webview is running
+    * @param step_callback is a function to execute after a step finish
+    * @param workflow_callback is a function to execute after the workflow finish
     * */
     fun startWorkflow(
         activity: Activity,
@@ -83,14 +90,14 @@ class WorkflowWebview(
         this.wf_webview.settings.mediaPlaybackRequiresUserGesture = false
         this.wf_webview.addJavascriptInterface(object : WorkflowCommsInterface {
             @JavascriptInterface
-            override fun onStepFinish(message: String) {
+            override fun onStepCompletion(message: String) {
                 val SBuilder = Step.newBuilder()
                 JsonFormat.parser().ignoringUnknownFields().merge(message, SBuilder)
                 val step = SBuilder.build()
                 step_callback(step)
             }
 
-            override fun onWorkflowFinish(message: String) {
+            override fun onWorkflowCompletion(message: String) {
                 val WBuider = Workflow.newBuilder()
                 JsonFormat.parser().ignoringUnknownFields().merge(message, WBuider)
                 val workflow = WBuider.build()
@@ -136,7 +143,11 @@ class WorkflowWebview(
                         askPermissions(activity, permissions)
 //                        askPermissions(activity, arrayListOf("enroll_full", "video_sign"))
 //                        Log.d("Url", json.getJSONObject("result").getString("public_url"))
-                        self.wf_webview.loadUrl(json.getJSONObject("result").getString("public_url"))
+                        var url = json.getJSONObject("result").getString("public_url")
+                        if (self.minimal) {
+                            url = "$url?minimal"
+                        }
+                        self.wf_webview.loadUrl(url)
                     }
                 }
             }
@@ -192,7 +203,7 @@ class WorkflowWebview(
 * */
 interface WorkflowCommsInterface {
     @JavascriptInterface
-    fun onStepFinish (message: String)
+    fun onStepCompletion (message: String)
 
-    fun onWorkflowFinish (message: String)
+    fun onWorkflowCompletion (message: String)
 }
