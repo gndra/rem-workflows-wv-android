@@ -79,6 +79,8 @@ class WorkflowWebview(
     ) {
         val self = this
         true.also { this.wf_webview.settings.javaScriptEnabled = it }
+        this.wf_webview.settings.allowContentAccess = true
+        this.wf_webview.settings.mediaPlaybackRequiresUserGesture = false
         this.wf_webview.addJavascriptInterface(object : WorkflowCommsInterface {
             @JavascriptInterface
             override fun onStepFinish(message: String) {
