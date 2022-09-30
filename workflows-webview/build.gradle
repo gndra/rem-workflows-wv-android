@@ -1,0 +1,99 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+    id 'com.google.protobuf'
+    id 'maven-publish'
+}
+
+//apply plugin: 'com.google.protobuf'
+
+android {
+    namespace 'rem.tools.workflows_webview'
+    compileSdk 32
+
+    defaultConfig {
+        minSdk 21
+        targetSdk 32
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    sourceSets {
+        main {
+            java {
+                srcDirs += 'build/generated/source/proto/main/java'
+            }
+//            kotlin {
+//                srcDirs += 'build/generated/source/proto/main/kotlin'
+//            }
+            proto {
+                srcDir 'src/main/proto' // default value
+            }
+        }
+    }
+}
+
+protobuf {
+    protoc { artifact = 'com.google.protobuf:protoc:3.21.6' }
+    plugins {
+        grpc { artifact = 'io.grpc:protoc-gen-grpc-java:1.39.0' }
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins{
+                java { }
+            }
+            task.plugins {
+                grpc { }
+            }
+        }
+    }
+}
+
+dependencies {
+
+    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'com.google.android.material:material:1.6.1'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
+    implementation 'com.google.code.gson:gson:2.9.1'
+
+//    implementation 'com.google.protobuf:protobuf-javalite:3.20.1'
+//    implementation 'com.google.protobuf:protobuf-kotlin-lite:3.20.1'
+
+    implementation "io.grpc:grpc-protobuf:1.39.0"
+
+    implementation "com.google.protobuf:protobuf-java:3.21.6"
+    implementation "com.google.protobuf:protobuf-java-util:3.21.6"
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+
+                groupId = 'com.github.gndra'
+                artifactId = 'rem-workflows-webview'
+                version = '1.0'
+            }
+        }
+    }
+}

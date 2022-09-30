@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package workflows;
+
+option java_package = "rem.tools.workflows_webview";
+option java_multiple_files = true;
+
+
+import "google/protobuf/any.proto";
+
+enum Status {
+  pristine = 0;
+  failed = 1;
+  error = 2;
+  success = 3;
+}
+
+enum Steps {
+  enroll_full = 0;
+  document_sign = 1;
+  video_sign = 2;
+  document_preview = 3;
+  personal_address = 4;
+  verify_email = 5;
+  verify_phone_number = 6;
+}
+
+message Step {
+  string uuid = 1;
+  string workflow_uuid = 2;
+  Status status = 3;
+  string step = 7;
+
+  map<string, google.protobuf.Any> payload = 8;
+
+  string updated_at = 6;
+  string created_at = 5;
+
+  map<string, google.protobuf.Any> metadata = 4;
+}
+
+message Workflow {
+  string uuid = 1;
+  string people_uuid = 6;
+
+  Status status = 7;
+
+  map<string, google.protobuf.Any> metadata = 2;
+  map<string, google.protobuf.Any> error = 8;
+
+  string updated_at = 3;
+  string created_at = 4;
+
+  repeated Step steps = 5;
+}
