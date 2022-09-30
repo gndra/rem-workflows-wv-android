@@ -16,12 +16,12 @@ class MainActivity : AppCompatActivity() {
 
         var wi = WorkflowWebview(
             wf_base_url = "https://api.test.rem.tools/workflows",
-            wf_apikey = "",
+            wf_apikey = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
             wf_webview = webView,
         )
         wi.startWorkflow(
             activity = this@MainActivity,
-            workflow_id = "c40501d9-6236-496f-b82e-0cb26a4ca395",
+            workflow_id = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
             step_callback = fun (step: Step) { println(step) },
             workflow_callback = fun (workflow: Workflow) { println(workflow) }
         )
