@@ -13,6 +13,8 @@ import androidx.core.content.ContextCompat
 import com.google.protobuf.util.JsonFormat
 import okhttp3.*
 import org.json.JSONObject
+import rem.tools.workflows.Step
+import rem.tools.workflows.Workflow
 import java.io.IOException
 
 
@@ -27,7 +29,7 @@ import java.io.IOException
 * @property wf_webview is the webview defined by the user for display the workflow
 * @property step_callback is a function to call when a step finish
 * @property workflow_callback is a function to call when a workflow finish
-*/
+* */
 class WorkflowWebview(
     wf_base_url: String?,
     private var wf_apikey: String,
@@ -97,14 +99,14 @@ class WorkflowWebview(
                 step_callback(step)
             }
 
+            @JavascriptInterface
             override fun onWorkflowCompletion(message: String) {
                 val WBuider = Workflow.newBuilder()
                 JsonFormat.parser().ignoringUnknownFields().merge(message, WBuider)
                 val workflow = WBuider.build()
                 workflow_callback(workflow)
             }
-        }, "workflowWebview")
-
+        }, "workflowsWebview")
         this.wf_webview.webChromeClient = object : WebChromeClient() {
             // Grant permissions for cam
             override fun onPermissionRequest(request: PermissionRequest) {
@@ -144,8 +146,9 @@ class WorkflowWebview(
 //                        askPermissions(activity, arrayListOf("enroll_full", "video_sign"))
 //                        Log.d("Url", json.getJSONObject("result").getString("public_url"))
                         var url = json.getJSONObject("result").getString("public_url")
+//                        var url = "https://491d-189-203-96-149.ngrok.io/" + json.getJSONObject("result").getString("token_encoded")
                         if (self.minimal) {
-                            url = "$url?minimal"
+                            url = "$url?minimal=true"
                         }
                         self.wf_webview.loadUrl(url)
                     }

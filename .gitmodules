@@ -1,0 +1,3 @@
+[submodule "workflows-webview/src/main/protos"]
+	path = workflows-webview/src/main/protos
+	url = git@github.com:gndra/rem-protobuf.git
