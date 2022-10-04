@@ -15,7 +15,7 @@ class MainActivity : AppCompatActivity() {
 
         var workflow = WorkflowsWebview(
             baseUrl = "https://api.test.rem.tools",
-            apiKey = "356e504c490ad5b06544d2f97f180e241159e72b",
+            apiKey = "XXXX",
             webView = webView,
             minimal = true,
             activity = this@MainActivity
@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         workflow.start(
-            workflowId = "a3eba6ff-a012-401b-85b4-a413402425c9",
+            workflowId = "XXXX",
             callback = { success, _ ->
                 // Initialization Callback
                 Log.d("START", success.toString())
