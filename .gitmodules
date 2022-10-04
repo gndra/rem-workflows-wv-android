@@ -1,0 +1,3 @@
+[submodule "workflows-webview/src/main/protos"]
+	path = workflows-webview/src/main/protos
+	url = https://github.com/rem-tools/protobufs
