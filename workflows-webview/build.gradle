@@ -82,8 +82,8 @@ afterEvaluate {
             release(MavenPublication) {
                 from components.release
 
-                groupId = 'com.github.gndra'
-                artifactId = 'rem-workflows-webview'
+                groupId = 'com.github.rem-tools'
+                artifactId = 'workflows-webview'
                 version = '1.0.6'
             }
         }
