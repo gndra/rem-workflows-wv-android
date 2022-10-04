@@ -4,9 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.webkit.WebView
-import rem.tools.workflows.Step
-import rem.tools.workflows.Workflow
-import rem.tools.workflows_webview.WorkflowWebview
+import rem.tools.workflows_webview.WorkflowsWebview
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -15,19 +13,30 @@ class MainActivity : AppCompatActivity() {
 
         var webView: WebView = findViewById(R.id.test_wv)
 
-        var wi = WorkflowWebview(
-            wf_base_url = "https://api.test.rem.tools/workflows",
-            wf_apikey = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-            wf_webview = webView,
-            minimal = true
+        var workflow = WorkflowsWebview(
+            baseUrl = "https://api.test.rem.tools",
+            apiKey = "356e504c490ad5b06544d2f97f180e241159e72b",
+            webView = webView,
+            minimal = true,
+            activity = this@MainActivity
         )
-        wi.startWorkflow(
-            activity = this@MainActivity,
-            workflow_id = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-            step_callback = fun (step: Step) { Log.d("WF_I", step.createdAt) },
-            workflow_callback = fun (workflow: Workflow) { Log.d("WF_I",
-                workflow.metadata.fieldsMap["ip"].toString()
-            ) }
+
+        workflow.onStepEvent = {
+            // Step Event Callback
+            Log.d("STEP", "Evento")
+        }
+
+        workflow.onWorkflowEvent = {
+            // Workflow Event Callback
+            Log.d("Workflow", "Evento")
+        }
+
+        workflow.start(
+            workflowId = "a3eba6ff-a012-401b-85b4-a413402425c9",
+            callback = { success, _ ->
+                // Initialization Callback
+                Log.d("START", success.toString())
+            }
         )
     }
 
@@ -37,6 +46,6 @@ class MainActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        WorkflowWebview.onPermissionsResults(requestCode, grantResults)
+        WorkflowsWebview.onPermissionsResults(requestCode, grantResults)
     }
 }
