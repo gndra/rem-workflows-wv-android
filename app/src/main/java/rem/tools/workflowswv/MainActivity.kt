@@ -4,6 +4,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.webkit.WebView
+import rem.tools.workflows.Step
+import rem.tools.workflows.Workflow
+import rem.tools.workflows_webview.WorkflowError
 import rem.tools.workflows_webview.WorkflowsWebview
 
 class MainActivity : AppCompatActivity() {
@@ -15,25 +18,23 @@ class MainActivity : AppCompatActivity() {
 
         var workflow = WorkflowsWebview(
             baseUrl = "https://api.test.rem.tools",
-            apiKey = "XXXX",
-            webView = webView,
-            minimal = true,
-            activity = this@MainActivity
+            apiKey = "XXXXXXXXXXXXXXXXXXXXXXX"
         )
 
-        workflow.onStepEvent = {
-            // Step Event Callback
+        workflow.onStepEvent = fun (step: Step) {
             Log.d("STEP", "Evento")
         }
 
-        workflow.onWorkflowEvent = {
-            // Workflow Event Callback
-            Log.d("Workflow", "Evento")
+        workflow.onWorkflowEvent = fun (workflow: Workflow) {
+            Log.d("WORKFLOW", "Evento")
         }
 
         workflow.start(
-            workflowId = "XXXX",
-            callback = { success, _ ->
+            workflowId = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+            webView = webView,
+            minimal = true,
+            activity = this@MainActivity,
+            callback = fun (success: Boolean, error: WorkflowError?) {
                 // Initialization Callback
                 Log.d("START", success.toString())
             }
