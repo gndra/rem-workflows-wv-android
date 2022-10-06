@@ -44,10 +44,7 @@ interface WorkflowsJavascriptInterface {
  * */
 class WorkflowsWebview(
     private var baseUrl: String? = "https://api.rem.tools",
-    private var apiKey: String,
-    var webView: WebView,
-    var activity: Activity,
-    val minimal: Boolean = false,
+    private var apiKey: String
 ) {
     private val client = OkHttpClient()
 
@@ -87,19 +84,22 @@ class WorkflowsWebview(
     *
     * @param workflowId Workflows UUID
     * @param callback Funcion de tipo `callback` que se llama una vez haya concluido con exito o error,
-     * la inicializacion de un _Workflow_
-     * @throws WorkflowsWebviewError Error al ejecutar `start`
+    * la inicializacion de un _Workflow_
+    * @throws WorkflowsWebviewError Error al ejecutar `start`
     * */
     fun start(
         workflowId: String,
-        callback: (success: Boolean, error: WorkflowError?) -> Unit
+        webView: WebView,
+        activity: Activity,
+        callback: (success: Boolean, error: WorkflowError?) -> Unit,
+        minimal: Boolean = false
     ) {
         try {
-            this.webView.settings.javaScriptEnabled = true
-            this.webView.settings.allowContentAccess = true
-            this.webView.settings.mediaPlaybackRequiresUserGesture = false
+            webView.settings.javaScriptEnabled = true
+            webView.settings.allowContentAccess = true
+            webView.settings.mediaPlaybackRequiresUserGesture = false
 
-            this.webView.addJavascriptInterface(object : WorkflowsJavascriptInterface {
+            webView.addJavascriptInterface(object : WorkflowsJavascriptInterface {
                 @JavascriptInterface
                 override fun onStepCompletion(message: String) {
                     val stepBuilder = Step.newBuilder()
@@ -117,14 +117,14 @@ class WorkflowsWebview(
                 }
             }, "workflowsWebview")
 
-            this.webView.webChromeClient = object : WebChromeClient() {
+            webView.webChromeClient = object : WebChromeClient() {
                 // Grant permissions for cam
                 override fun onPermissionRequest(request: PermissionRequest) {
                     request.grant(request.resources)
                 }
             }
 
-            this.webView.webViewClient = object : WebViewClient () {}
+            webView.webViewClient = object : WebViewClient () {}
 
             val uri = Uri.parse(this.baseUrl)
                 .buildUpon()
@@ -164,18 +164,17 @@ class WorkflowsWebview(
                                     workflowSteps.add(steps.getJSONObject(i).getString("step"))
                                 }
 
-                                askPermissionsForSteps(this@WorkflowsWebview.activity, workflowSteps)
+                                askPermissionsForSteps(activity, workflowSteps)
 
                                 var publicUrl = Uri.parse(workflowTokenData.getJSONObject("result")
                                     .getString("public_url"))
                                     .buildUpon()
 
-                                if (this@WorkflowsWebview.minimal) {
+                                if (minimal) {
                                     publicUrl = publicUrl.appendQueryParameter("minimal", "true")
                                 }
 
-                                this@WorkflowsWebview.webView.loadUrl(publicUrl.toString())
-                                Log.d("xd", "XD")
+                                webView.loadUrl(publicUrl.toString())
                                 callback.invoke(true, null)
                             }
                         }
