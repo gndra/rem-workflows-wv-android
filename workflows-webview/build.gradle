@@ -9,11 +9,12 @@ plugins {
 
 android {
     namespace 'rem.tools.workflows_webview'
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         minSdk 23
-        targetSdk 32
+        //noinspection OldTargetApi
+        targetSdk 31
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -48,7 +49,7 @@ android {
 }
 
 protobuf {
-    protoc { artifact = 'com.google.protobuf:protoc:3.21.6' }
+    protoc { artifact = 'com.google.protobuf:protoc:3.21.9' }
     plugins {
         grpc { artifact = 'io.grpc:protoc-gen-grpc-java:1.39.0' }
     }
@@ -66,14 +67,14 @@ protobuf {
 
 dependencies {
 
-    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.appcompat:appcompat:1.5.1'
 
     implementation 'com.squareup.okhttp3:okhttp:4.10.0'
     implementation "io.grpc:grpc-protobuf:1.39.0"
 
-    implementation "com.google.protobuf:protobuf-java:3.21.6"
-    implementation "com.google.protobuf:protobuf-java-util:3.21.6"
+    implementation "com.google.protobuf:protobuf-java:3.21.9"
+    implementation "com.google.protobuf:protobuf-java-util:3.21.9"
 }
 
 afterEvaluate {
@@ -84,7 +85,7 @@ afterEvaluate {
 
                 groupId = 'com.github.rem-tools'
                 artifactId = 'workflows-webview'
-                version = '1.2.9'
+                version = '1.2.10'
             }
         }
     }
