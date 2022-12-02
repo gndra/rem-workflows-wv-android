@@ -7,9 +7,12 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.View
 import android.webkit.*
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import androidx.webkit.WebSettingsCompat
+import androidx.webkit.WebViewFeature
 import com.google.protobuf.util.JsonFormat
 import okhttp3.*
 import org.json.JSONObject
@@ -37,9 +40,6 @@ interface WorkflowsJavascriptInterface {
  *
  * @property baseUrl URL base de rem.tools
  * @property apiKey API Key de rem.tools
- * @property webView `WebView` donde se cargara el _Workflow_
- * @property activity `Activity` donde se encuentra el `WebView`
- * @property minimal is a function to call when a step finish
  * @constructor Crea una instancia para poder inicializar un flujo dentro de un _WebView_
  * */
 class WorkflowsWebview(
@@ -83,8 +83,11 @@ class WorkflowsWebview(
     * Valida e inicializa el workflow configurado
     *
     * @param workflowId Workflows UUID
+    * @param webView Webview donde se ejecuta el workflow
+    * @param activity Actividad en la que se ejecuta el webview
     * @param callback Funcion de tipo `callback` que se llama una vez haya concluido con exito o error,
     * la inicializacion de un _Workflow_
+    * @param minimal Bandera para indicar si se desea retirar el navbar default del workflow
     * @throws WorkflowsWebviewError Error al ejecutar `start`
     * */
     fun start(
@@ -95,9 +98,27 @@ class WorkflowsWebview(
         minimal: Boolean = false
     ) {
         try {
+            webView.clearCache(true)
+            webView.clearFormData()
             webView.settings.javaScriptEnabled = true
             webView.settings.allowContentAccess = true
             webView.settings.mediaPlaybackRequiresUserGesture = false
+            webView.settings.cacheMode = WebSettings.LOAD_NO_CACHE
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+            } else {
+                webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+            }
+
+            if (Build.VERSION.SDK_INT >= 33) {
+                if (WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)) {
+                    WebSettingsCompat.setAlgorithmicDarkeningAllowed(webView.settings, false);
+                }
+            } else {
+                if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK_STRATEGY)) {
+                    WebSettingsCompat.setForceDark(webView.settings, WebSettingsCompat.FORCE_DARK_OFF)
+                }
+            }
 
             webView.addJavascriptInterface(object : WorkflowsJavascriptInterface {
                 @JavascriptInterface
@@ -124,7 +145,25 @@ class WorkflowsWebview(
                 }
             }
 
-            webView.webViewClient = object : WebViewClient () {}
+            webView.webViewClient = object : WebViewClient () {
+                @RequiresApi(Build.VERSION_CODES.O)
+                override fun onRenderProcessGone(
+                    view: WebView?,
+                    detail: RenderProcessGoneDetail?
+                ): Boolean {
+                    if (detail != null) {
+                        if (!detail.didCrash()) {
+                            Log.e("MY_APP_TAG", ("System killed the WebView rendering process " +
+                                    "to reclaim memory. Recreating..."))
+
+                            webView.destroy()
+                            return true // The app continues executing.
+                        }
+                    }
+                    Log.e("MY_APP_TAG", "The WebView rendering process crashed!")
+                    return false
+                }
+            }
 
             val uri = Uri.parse(this.baseUrl)
                 .buildUpon()
