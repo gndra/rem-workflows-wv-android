@@ -44,5 +44,5 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     implementation project(":workflows-webview")
 //    implementation 'com.google.protobuf:protobuf-javalite:3.20.1'
-    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.12.1'
+//    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.12.1'
 }
