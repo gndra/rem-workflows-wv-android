@@ -4,8 +4,10 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.webkit.WebView
-import rem.tools.workflows.Step
-import rem.tools.workflows.Workflow
+import rem.tools.workflows_webview.Step
+import rem.tools.workflows_webview.Workflow
+//import rem.tools.workflows.Step
+//import rem.tools.workflows.Workflow
 import rem.tools.workflows_webview.WorkflowError
 import rem.tools.workflows_webview.WorkflowsWebview
 
@@ -22,11 +24,12 @@ class MainActivity : AppCompatActivity() {
         )
 
         workflow.onStepEvent = fun (step: Step) {
-            Log.d("STEP", "Evento")
+            Log.d("STEP", step.toString())
         }
 
         workflow.onWorkflowEvent = fun (workflow: Workflow) {
-            Log.d("WORKFLOW", "Evento")
+//            Log.d("WORKFLOW", workflow.toString())
+            Log.d("WORKFLOW", workflow.metadata?.get("ip")?.asText()!!)
         }
 
         workflow.start(

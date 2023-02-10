@@ -13,12 +13,16 @@ import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
-import com.google.protobuf.util.JsonFormat
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+//import com.google.protobuf.util.JsonFormat
 import okhttp3.*
 import org.json.JSONObject
-import rem.tools.workflows.Step
-import rem.tools.workflows.Workflow
+//import rem.tools.workflows.Step
+//import rem.tools.workflows.Workflow
 import java.io.IOException
+import rem.tools.workflows_webview.Workflow as WorkflowData
+import rem.tools.workflows_webview.Step as StepData
 
 const val PERMISSIONS_REQUEST_CODE = 101010
 
@@ -51,12 +55,12 @@ class WorkflowsWebview(
     /**
      * Callback de eventos del _Step_ durante la ejecucion del _Workflow_
      */
-    var onStepEvent: ((step: Step) -> Unit)? = null
+    var onStepEvent: ((step: StepData) -> Unit)? = null
 
     /**
      * Callback de eventos del _Workflow_ durante la ejecucion del _Workflow_
      */
-    var onWorkflowEvent: ((workflow: Workflow) -> Unit)? = null
+    var onWorkflowEvent: ((workflow: WorkflowData) -> Unit)? = null
 
     companion object {
         /**
@@ -123,18 +127,26 @@ class WorkflowsWebview(
             webView.addJavascriptInterface(object : WorkflowsJavascriptInterface {
                 @JavascriptInterface
                 override fun onStepCompletion(message: String) {
-                    val stepBuilder = Step.newBuilder()
-                    JsonFormat.parser().ignoringUnknownFields().merge(message, stepBuilder)
+//                    val stepBuilder = Step.newBuilder()
+//                    val stepData = JsonFormat.parser().ignoringUnknownFields().merge(message, stepBuilder)
 
-                    this@WorkflowsWebview.onStepEvent?.invoke(stepBuilder.build())
+                    val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                    val step: StepData = mapper.readValue(message, StepData::class.java)
+//                    this@WorkflowsWebview.onStepEvent?.invoke(stepBuilder.build())
+                    this@WorkflowsWebview.onStepEvent?.invoke(step)
                 }
 
                 @JavascriptInterface
                 override fun onWorkflowCompletion(message: String) {
-                    val workflowBuilder = Workflow.newBuilder()
-                    JsonFormat.parser().ignoringUnknownFields().merge(message, workflowBuilder)
+//                    val workflowBuilder = Workflow.newBuilder()
+//                    JsonFormat.parser().ignoringUnknownFields().merge(message, workflowBuilder)
 
-                    this@WorkflowsWebview.onWorkflowEvent?.invoke(workflowBuilder.build())
+                    val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+
+                    val workflow: WorkflowData = mapper.readValue(message, WorkflowData::class.java)
+
+//                    this@WorkflowsWebview.onWorkflowEvent?.invoke(workflowBuilder.build())
+                    this@WorkflowsWebview.onWorkflowEvent?.invoke(workflow)
                 }
             }, "workflowsWebview")
 
