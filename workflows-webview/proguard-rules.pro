@@ -20,10 +20,23 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--keepclassmembers class rem.tools.workflows_webview.WorkflowsWebview$WorkflowsJavascript{
-    public *;
+-keep public class rem.tools.workflows_webview.WorkflowsWebview {
+    *;
+}
+-keep public class rem.tools.workflows_webview.WorkflowsJavascriptInterface {
+    *;
+}
+-keep public class rem.tools.workflows_webview.Step {
+    *;
+}
+-keep public class rem.tools.workflows_webview.Workflow {
+    *;
+}
+-keep public class rem.tools.workflows_webview.WorkflowError{
+    *;
 }
 -keepclassmembers class * {
     @android.webkit.JavascriptInterface <methods>;
 }
 -keepattributes JavascriptInterface
+-keepattributes *Annotation*

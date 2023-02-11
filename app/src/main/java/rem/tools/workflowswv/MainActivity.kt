@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
 
         var workflow = WorkflowsWebview(
             baseUrl = "https://api.test.rem.tools",
-            apiKey = "356e504c490ad5b06544d2f97f180e241159e72b"
+            apiKey = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
         )
 
         workflow.onStepEvent = fun (step: Step) {
@@ -30,12 +30,13 @@ class MainActivity : AppCompatActivity() {
 
         workflow.onWorkflowEvent = fun (workflow: Workflow) {
 //            Log.d("WORKFLOW", workflow.toString())
+            Toast.makeText(applicationContext, "TEST", Toast.LENGTH_LONG)
             Toast.makeText(applicationContext, "Device IP " + workflow.metadata?.get("ip")?.asText()!!, Toast.LENGTH_LONG).show()
             Log.d("WORKFLOW", workflow.metadata?.get("ip")?.asText()!!)
         }
 
         workflow.start(
-            workflowId = "b18d0a6a-80eb-4837-b3bc-47b295219004",
+            workflowId = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
             webView = webView,
             minimal = true,
             activity = this@MainActivity,
