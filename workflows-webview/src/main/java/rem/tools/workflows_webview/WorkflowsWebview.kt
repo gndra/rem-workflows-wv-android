@@ -31,10 +31,10 @@ const val PERMISSIONS_REQUEST_CODE = 101010
  * */
 interface WorkflowsJavascriptInterface {
     @JavascriptInterface
-    fun onStepCompletion (message: String)
+    public fun onStepCompletion (message: String)
 
     @JavascriptInterface
-    fun onWorkflowCompletion (message: String)
+    public fun onWorkflowCompletion (message: String)
 }
 
 /**
@@ -46,7 +46,7 @@ interface WorkflowsJavascriptInterface {
  * @property apiKey API Key de rem.tools
  * @constructor Crea una instancia para poder inicializar un flujo dentro de un _WebView_
  * */
-class WorkflowsWebview(
+public class WorkflowsWebview(
     private var baseUrl: String? = "https://api.rem.tools",
     private var apiKey: String
 ) {
@@ -124,31 +124,7 @@ class WorkflowsWebview(
                 }
             }
 
-            webView.addJavascriptInterface(object : WorkflowsJavascriptInterface {
-                @JavascriptInterface
-                override fun onStepCompletion(message: String) {
-//                    val stepBuilder = Step.newBuilder()
-//                    val stepData = JsonFormat.parser().ignoringUnknownFields().merge(message, stepBuilder)
-
-                    val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                    val step: StepData = mapper.readValue(message, StepData::class.java)
-//                    this@WorkflowsWebview.onStepEvent?.invoke(stepBuilder.build())
-                    this@WorkflowsWebview.onStepEvent?.invoke(step)
-                }
-
-                @JavascriptInterface
-                override fun onWorkflowCompletion(message: String) {
-//                    val workflowBuilder = Workflow.newBuilder()
-//                    JsonFormat.parser().ignoringUnknownFields().merge(message, workflowBuilder)
-
-                    val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-
-                    val workflow: WorkflowData = mapper.readValue(message, WorkflowData::class.java)
-
-//                    this@WorkflowsWebview.onWorkflowEvent?.invoke(workflowBuilder.build())
-                    this@WorkflowsWebview.onWorkflowEvent?.invoke(workflow)
-                }
-            }, "workflowsWebview")
+            webView.addJavascriptInterface(WorkflowsJavascript(this@WorkflowsWebview) , "workflowsWebview")
 
             webView.webChromeClient = object : WebChromeClient() {
                 // Grant permissions for cam
@@ -240,6 +216,33 @@ class WorkflowsWebview(
             })
         } catch (error: Exception) {
             throw(WorkflowsWebviewError(error.message, WorkflowError.INTERNAL_ERROR))
+        }
+    }
+
+    public class WorkflowsJavascript (val workflowsWebview: WorkflowsWebview) : WorkflowsJavascriptInterface  {
+
+        @JavascriptInterface
+        override public fun onStepCompletion(message: String) {
+//                    val stepBuilder = Step.newBuilder()
+//                    val stepData = JsonFormat.parser().ignoringUnknownFields().merge(message, stepBuilder)
+
+            val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            val step: StepData = mapper.readValue(message, StepData::class.java)
+//                    this@WorkflowsWebview.onStepEvent?.invoke(stepBuilder.build())
+            workflowsWebview.onStepEvent?.invoke(step)
+        }
+
+        @JavascriptInterface
+        override public fun onWorkflowCompletion(message: String) {
+//                    val workflowBuilder = Workflow.newBuilder()
+//                    JsonFormat.parser().ignoringUnknownFields().merge(message, workflowBuilder)
+
+            val mapper = jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+
+            val workflow: WorkflowData = mapper.readValue(message, WorkflowData::class.java)
+
+//                    this@WorkflowsWebview.onWorkflowEvent?.invoke(workflowBuilder.build())
+            workflowsWebview.onWorkflowEvent?.invoke(workflow)
         }
     }
 
