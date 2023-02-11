@@ -22,6 +22,9 @@
 -keep public class rem.tools.workflows_webview.WorkflowsWebview {
     *;
 }
+-keep public class rem.tools.workflows_webview.WorkflowsWebview$Companion {
+    *;
+}
 -keep public class rem.tools.workflows_webview.WorkflowsJavascriptInterface {
     *;
 }
