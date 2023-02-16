@@ -1,5 +1,6 @@
 package rem.tools.workflows_webview
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -101,6 +102,10 @@ public class WorkflowsWebview(
                 webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
             } else {
                 webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                webView.setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_IMPORTANT, false)
             }
 
             if (Build.VERSION.SDK_INT >= 33) {
