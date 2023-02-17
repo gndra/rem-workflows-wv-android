@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         workflow.start(
-            workflowId = "9a489ce2-3ab8-48a3-b2ec-fe8436d3baff",
+            workflowId = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
             webView = webView,
             minimal = true,
             activity = this@MainActivity,

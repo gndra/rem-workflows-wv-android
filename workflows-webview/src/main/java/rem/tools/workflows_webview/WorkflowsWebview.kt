@@ -23,6 +23,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
+import androidx.webkit.WebViewRenderProcess
 import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
@@ -104,25 +105,17 @@ public class WorkflowsWebview(
             settings.javaScriptEnabled = true
             settings.javaScriptCanOpenWindowsAutomatically = true
             settings.layoutAlgorithm = LayoutAlgorithm.NORMAL
-
-//            if (preferences.getBoolean("AndroidInsecureFileModeEnabled", false)) {
-                //These settings are deprecated and loading content via file:// URLs is generally discouraged,
-                //but we allow this for compatibility reasons
-//                LOG.d(TAG, "Enabled insecure file access")
-                settings.allowFileAccess = true
-                settings.allowUniversalAccessFromFileURLs = true
-//                cookieManager.setAcceptFileSchemeCookies()
-//            }
-
             settings.mediaPlaybackRequiresUserGesture = false
+            settings.domStorageEnabled = true
+            settings.allowFileAccess = true
+            settings.allowContentAccess = true
+            settings.allowUniversalAccessFromFileURLs = true
 
             val databasePath =
                 webView.context.applicationContext.getDir("database", Activity.MODE_PRIVATE).path
             settings.databaseEnabled = true
 
             settings.setGeolocationDatabasePath(databasePath)
-
-            settings.domStorageEnabled = true
 
             settings.setGeolocationEnabled(true)
 
@@ -142,6 +135,26 @@ public class WorkflowsWebview(
             } else {
                 if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK_STRATEGY)) {
                     WebSettingsCompat.setForceDark(webView.settings, WebSettingsCompat.FORCE_DARK_OFF)
+                }
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                webView.webViewRenderProcessClient = object : WebViewRenderProcessClient() {
+                    override fun onRenderProcessUnresponsive(
+                        view: WebView,
+                        renderer: android.webkit.WebViewRenderProcess?
+                    ) {
+                        renderer?.terminate()
+                        view.reload()
+                    }
+
+                    override fun onRenderProcessResponsive(
+                        view: WebView,
+                        renderer: android.webkit.WebViewRenderProcess?
+                    ) {
+                        renderer?.terminate()
+                        view.reload()
+                    }
                 }
             }
 
