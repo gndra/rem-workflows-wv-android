@@ -30,13 +30,12 @@ class MainActivity : AppCompatActivity() {
 
         workflow.onWorkflowEvent = fun (workflow: Workflow) {
 //            Log.d("WORKFLOW", workflow.toString())
-            Toast.makeText(applicationContext, "TEST", Toast.LENGTH_LONG)
             Toast.makeText(applicationContext, "Device IP " + workflow.metadata?.get("ip")?.asText()!!, Toast.LENGTH_LONG).show()
             Log.d("WORKFLOW", workflow.metadata?.get("ip")?.asText()!!)
         }
 
         workflow.start(
-            workflowId = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+            workflowId = "9a489ce2-3ab8-48a3-b2ec-fe8436d3baff",
             webView = webView,
             minimal = true,
             activity = this@MainActivity,
