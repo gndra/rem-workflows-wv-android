@@ -1,28 +1,35 @@
 package rem.tools.workflows_webview
 
+//import com.google.protobuf.util.JsonFormat
+//import rem.tools.workflows.Step
+//import rem.tools.workflows.Workflow
+
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import android.view.View
 import android.webkit.*
+import android.webkit.WebSettings.LayoutAlgorithm
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-//import com.google.protobuf.util.JsonFormat
+import androidx.webkit.WebViewRenderProcess
 import okhttp3.*
 import org.json.JSONObject
-//import rem.tools.workflows.Step
-//import rem.tools.workflows.Workflow
 import java.io.IOException
-import rem.tools.workflows_webview.Workflow as WorkflowData
 import rem.tools.workflows_webview.Step as StepData
+import rem.tools.workflows_webview.Workflow as WorkflowData
+
 
 const val PERMISSIONS_REQUEST_CODE = 101010
 
@@ -83,6 +90,7 @@ public class WorkflowsWebview(
     * @param minimal Bandera para indicar si se desea retirar el navbar default del workflow
     * @throws WorkflowsWebviewError Error al ejecutar `start`
     * */
+    @SuppressLint("SetJavaScriptEnabled")
     fun start(
         workflowId: String,
         webView: WebView,
@@ -91,17 +99,34 @@ public class WorkflowsWebview(
         minimal: Boolean = false
     ) {
         try {
-            webView.clearCache(true)
-            webView.clearFormData()
-            webView.settings.javaScriptEnabled = true
-            webView.settings.allowContentAccess = true
-            webView.settings.mediaPlaybackRequiresUserGesture = false
-            webView.settings.cacheMode = WebSettings.LOAD_NO_CACHE
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-            } else {
-                webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+            webView.setInitialScale(0)
+            webView.isVerticalScrollBarEnabled = false
+            val settings = webView.settings
+            settings.javaScriptEnabled = true
+            settings.javaScriptCanOpenWindowsAutomatically = true
+            settings.layoutAlgorithm = LayoutAlgorithm.NORMAL
+            settings.mediaPlaybackRequiresUserGesture = false
+            settings.domStorageEnabled = true
+            settings.allowFileAccess = true
+            settings.allowContentAccess = true
+            settings.allowUniversalAccessFromFileURLs = true
+
+            val databasePath =
+                webView.context.applicationContext.getDir("database", Activity.MODE_PRIVATE).path
+            settings.databaseEnabled = true
+
+            settings.setGeolocationDatabasePath(databasePath)
+
+            settings.setGeolocationEnabled(true)
+
+            val intentFilter = IntentFilter()
+            intentFilter.addAction(Intent.ACTION_CONFIGURATION_CHANGED)
+            val receiver = object : BroadcastReceiver() {
+                override fun onReceive(context: Context?, intent: Intent?) {
+                    settings.userAgentString
+                }
             }
+            webView.context.registerReceiver(receiver, intentFilter)
 
             if (Build.VERSION.SDK_INT >= 33) {
                 if (WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)) {
@@ -110,6 +135,26 @@ public class WorkflowsWebview(
             } else {
                 if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK_STRATEGY)) {
                     WebSettingsCompat.setForceDark(webView.settings, WebSettingsCompat.FORCE_DARK_OFF)
+                }
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                webView.webViewRenderProcessClient = object : WebViewRenderProcessClient() {
+                    override fun onRenderProcessUnresponsive(
+                        view: WebView,
+                        renderer: android.webkit.WebViewRenderProcess?
+                    ) {
+                        renderer?.terminate()
+                        view.reload()
+                    }
+
+                    override fun onRenderProcessResponsive(
+                        view: WebView,
+                        renderer: android.webkit.WebViewRenderProcess?
+                    ) {
+                        renderer?.terminate()
+                        view.reload()
+                    }
                 }
             }
 
