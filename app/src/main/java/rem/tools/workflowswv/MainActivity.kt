@@ -1,5 +1,6 @@
 package rem.tools.workflowswv
 
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -18,6 +19,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         var webView: WebView = findViewById(R.id.test_wv)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            webView.setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_IMPORTANT, true)
+        }
 
         var workflow = WorkflowsWebview(
             baseUrl = "https://api.test.rem.tools",

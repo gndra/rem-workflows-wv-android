@@ -12,6 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WorkflowWebview"
         android:hardwareAccelerated="true"
+        android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
             android:name=".MainActivity"

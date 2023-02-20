@@ -17,8 +17,10 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.View
 import android.webkit.*
 import android.webkit.WebSettings.LayoutAlgorithm
+import android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.webkit.WebSettingsCompat
@@ -110,6 +112,17 @@ public class WorkflowsWebview(
             settings.allowFileAccess = true
             settings.allowContentAccess = true
             settings.allowUniversalAccessFromFileURLs = true
+
+            settings.loadsImagesAutomatically = true
+
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                settings.mixedContentMode = MIXED_CONTENT_ALWAYS_ALLOW;
+                webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+            } else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+            } else {
+                webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+            }
 
             val databasePath =
                 webView.context.applicationContext.getDir("database", Activity.MODE_PRIVATE).path
