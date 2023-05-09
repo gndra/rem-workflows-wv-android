@@ -4,13 +4,13 @@ package rem.tools.workflows_webview
 //import rem.tools.workflows.Step
 //import rem.tools.workflows.Workflow
 
+import android.R.string
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -25,7 +25,6 @@ import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
-import androidx.webkit.WebViewRenderProcess
 import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
@@ -198,6 +197,19 @@ public class WorkflowsWebview(
                     Log.e("MY_APP_TAG", "The WebView rendering process crashed!")
                     return false
                 }
+
+                @RequiresApi(Build.VERSION_CODES.O)
+                override fun onPageFinished(view: WebView?, url: String?) {
+                    super.onPageFinished(view, url)
+
+                    val jsCode: String = "var spinner = document.createElement('div');" +
+                            "spinner.setAttribute('class', 'spinner');" +
+                            "document.body.insertBefore(spinner, document.body.firstChild);" +
+                            "var style = document.createElement('style');" +
+                            "style.innerHTML = '.spinner { position: absolute; top: 0; left: 0; z-index: 9999; border: 1px solid rgba(0,0,0,0.1); border-top-color: rgba(255,255,255,0.1); border-radius: 50%; width: 1px; height: 1px; animation: spin 1s linear infinite; } @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }';" +
+                            "document.head.appendChild(style);"
+                    view?.evaluateJavascript(jsCode, null)
+                }
             }
 
             val uri = Uri.parse(this.baseUrl)
@@ -216,6 +228,8 @@ public class WorkflowsWebview(
                     callback.invoke(false, WorkflowError.REQUEST_INTERNAL_ERROR)
                 }
 
+                // Workaround to Chromium Error injecting an element with movement into our Workflow Webview
+                // https://bugs.chromium.org/p/chromium/issues/detail?id=1401352#c12
                 @RequiresApi(Build.VERSION_CODES.M)
                 override fun onResponse(call: Call, response: Response) {
                     if (response.isSuccessful) {
