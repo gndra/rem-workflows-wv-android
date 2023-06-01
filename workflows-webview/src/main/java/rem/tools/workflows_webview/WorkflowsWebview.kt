@@ -291,34 +291,44 @@ public class WorkflowsWebview(
         activity: Activity, steps: ArrayList<String>
     ) {
         Log.d("Permissions", "onpermission request")
-        if (ContextCompat.checkSelfPermission(
-                activity.applicationContext,
-                android.Manifest.permission.CAMERA
-            ) == PackageManager.PERMISSION_GRANTED &&
-            ContextCompat.checkSelfPermission(
-                activity.applicationContext,
-                android.Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED &&
-            ContextCompat.checkSelfPermission(
-                activity.applicationContext,
-                android.Manifest.permission.RECORD_AUDIO
-            ) == PackageManager.PERMISSION_GRANTED
+
+        var permissions = arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION)
+
+        if (steps.contains("auth") ||
+            steps.contains("enroll_full") ||
+            steps.contains("enroll_basic") ||
+            steps.contains("enroll_selfie") ||
+            steps.contains("liveness") ||
+            steps.contains("enroll_selfie") ||
+            steps.contains("video_sign") ||
+            steps.contains("biometric_sign") ||
+            steps.contains("document_qr")
         ) {
+            permissions += android.Manifest.permission.CAMERA
+        }
+
+        if (steps.contains("files_upload") || steps.contains("document_qr")) {
+            permissions += android.Manifest.permission.READ_EXTERNAL_STORAGE
+            permissions += android.Manifest.permission.MANAGE_DOCUMENTS
+        }
+
+        if (steps.contains("biometric_sign")) {
+            permissions += android.Manifest.permission.RECORD_AUDIO
+        }
+
+        var allGranted = true
+        for (permission in permissions) {
+            val granted = ContextCompat.checkSelfPermission(
+                activity.applicationContext, permission
+            ) == PackageManager.PERMISSION_GRANTED
+
+            allGranted = allGranted && granted
+        }
+
+        if (allGranted) {
             Log.d("---", "PERMISSION REQUEST GRANTED")
         } else {
             Log.d("---", "ELSE")
-            var permissions = arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION)
-
-            if (steps.contains("auth") ||
-                steps.contains("enroll_full") ||
-                steps.contains("liveness") ||
-                steps.contains("enroll_selfie") ||
-                        steps.contains("video_sign")
-            ) permissions += android.Manifest.permission.CAMERA
-
-            if (steps.contains("video_sign"))
-                permissions += android.Manifest.permission.RECORD_AUDIO
-
             activity.requestPermissions(permissions, PERMISSIONS_REQUEST_CODE)
         }
     }
