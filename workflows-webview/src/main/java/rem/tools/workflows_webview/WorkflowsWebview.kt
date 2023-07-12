@@ -177,6 +177,12 @@ public class WorkflowsWebview(
                 override fun onPermissionRequest(request: PermissionRequest) {
                     request.grant(request.resources)
                 }
+
+                override fun onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback)
+                {
+                    super.onGeolocationPermissionsShowPrompt(origin, callback);
+                    callback.invoke(origin, true, false);
+                }
             }
 
             webView.webViewClient = object : WebViewClient () {
