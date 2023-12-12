@@ -46,6 +46,7 @@ class MainActivity : AppCompatActivity() {
             activity = this@MainActivity,
             callback = fun (success: Boolean, error: WorkflowError?) {
                 // Initialization Callback
+                Log.d("ERROR", error.toString())
                 Log.d("START", success.toString())
             }
         )
