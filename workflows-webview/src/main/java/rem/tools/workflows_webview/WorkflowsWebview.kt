@@ -33,7 +33,7 @@ import rem.tools.workflows_webview.Workflow as WorkflowData
 
 
 const val PERMISSIONS_REQUEST_CODE = 101010
-
+const val REQUEST_FILE_PICKER = 202020
 /**
  * Configura un `WebView` para poder inicializar de manera adecuada un proceso web de _Workflows_.
  *
@@ -76,6 +76,26 @@ public class WorkflowsWebview(
                 }
 
                 return
+            }
+        }
+
+        var filePathCallback: ValueCallback<Array<Uri>>? = null
+
+        /**
+         * Revisa el acceso a los archivos del dispositivo para ciertos steps
+         * @param requestCode `requestCode` de `onActivityResult`
+         * @param resultCode `resultCode`
+         * @param data `data`
+         */
+        fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+            if (requestCode == REQUEST_FILE_PICKER) {
+                if (resultCode == Activity.RESULT_OK && data != null) {
+                    WorkflowsWebview.
+                    filePathCallback?.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(resultCode, data))
+                } else {
+                    filePathCallback?.onReceiveValue(null)
+                }
+                filePathCallback = null
             }
         }
     }

@@ -1,5 +1,6 @@
 package rem.tools.workflowswv
 
+import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -59,5 +60,10 @@ class MainActivity : AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         WorkflowsWebview.onPermissionsResults(requestCode, grantResults)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        WorkflowsWebview.onActivityResult(requestCode, resultCode, data)
     }
 }
