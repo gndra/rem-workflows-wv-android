@@ -203,6 +203,22 @@ public class WorkflowsWebview(
                     super.onGeolocationPermissionsShowPrompt(origin, callback);
                     callback.invoke(origin, true, false);
                 }
+
+                override fun onShowFileChooser(
+                    webView: WebView?,
+                    filePathCallback: ValueCallback<Array<Uri>>,
+                    fileChooserParams: FileChooserParams
+                ): Boolean {
+                    WorkflowsWebview.filePathCallback = filePathCallback
+                    val intent = fileChooserParams.createIntent()
+                    try {
+                        activity.startActivityForResult(intent, REQUEST_FILE_PICKER)
+                    } catch (e: Exception) {
+                        filePathCallback.onReceiveValue(null)
+                        return false
+                    }
+                    return true
+                }
             }
 
             webView.webViewClient = object : WebViewClient () {
