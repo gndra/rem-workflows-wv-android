@@ -11,7 +11,7 @@ android {
         applicationId "rem.tools.workflowswv"
         minSdk 23
         //noinspection OldTargetApi
-        targetSdk 31
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 

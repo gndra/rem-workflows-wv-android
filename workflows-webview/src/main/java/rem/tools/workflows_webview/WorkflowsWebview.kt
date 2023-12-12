@@ -177,6 +177,12 @@ public class WorkflowsWebview(
                 override fun onPermissionRequest(request: PermissionRequest) {
                     request.grant(request.resources)
                 }
+
+                override fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback)
+                {
+                    super.onGeolocationPermissionsShowPrompt(origin, callback);
+                    callback.invoke(origin, true, false);
+                }
             }
 
             webView.webViewClient = object : WebViewClient () {
@@ -307,7 +313,7 @@ public class WorkflowsWebview(
             permissions += android.Manifest.permission.CAMERA
         }
 
-        if (steps.contains("files_upload") || steps.contains("document_qr")) {
+        if (steps.contains("files_upload") || steps.contains("document_qr") || steps.contains("address_proof")) {
             permissions += android.Manifest.permission.READ_EXTERNAL_STORAGE
             permissions += android.Manifest.permission.MANAGE_DOCUMENTS
         }
