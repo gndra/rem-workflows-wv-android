@@ -106,6 +106,7 @@ public class WorkflowsWebview(
     * @param workflowId Workflows UUID
     * @param webView Webview donde se ejecuta el workflow
     * @param activity Actividad en la que se ejecuta el webview
+    * @param runHost Host donde se ejecutara el workflow
     * @param callback Funcion de tipo `callback` que se llama una vez haya concluido con exito o error,
     * la inicializacion de un _Workflow_
     * @param minimal Bandera para indicar si se desea retirar el navbar default del workflow
@@ -116,6 +117,7 @@ public class WorkflowsWebview(
         workflowId: String,
         webView: WebView,
         activity: Activity,
+        runHost: String?,
         callback: (success: Boolean, error: WorkflowError?) -> Unit,
         minimal: Boolean = false
     ) {
@@ -254,7 +256,7 @@ public class WorkflowsWebview(
                 }
             }
 
-            val uri = Uri.parse(this.baseUrl)
+            var uri = Uri.parse(this.baseUrl)
                 .buildUpon()
                 .appendEncodedPath("/workflows/$workflowId/create-token")
                 .build()
@@ -302,6 +304,10 @@ public class WorkflowsWebview(
 
                                 if (minimal) {
                                     publicUrl = publicUrl.appendQueryParameter("minimal", "true")
+                                }
+
+                                if (! runHost.isNullOrEmpty()) {
+                                    publicUrl.authority(runHost)
                                 }
 
                                 webView.loadUrl(publicUrl.toString())

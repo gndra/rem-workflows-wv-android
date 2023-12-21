@@ -45,6 +45,7 @@ class MainActivity : AppCompatActivity() {
             webView = webView,
             minimal = true,
             activity = this@MainActivity,
+            runHost = null,
             callback = fun (success: Boolean, error: WorkflowError?) {
                 // Initialization Callback
                 Log.d("ERROR", error.toString())
